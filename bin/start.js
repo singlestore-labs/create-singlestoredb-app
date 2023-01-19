@@ -36,4 +36,7 @@ oOOOOOOOOO                    oOOOOOOOOo
 starting *${appName}*: an awesome SingleStore app!
 `);
 
-createWorkspace.create(key);
+(async () => {
+    const { endpoint, password } = await createWorkspace.create(appName, key);
+    console.log({ endpoint, password });
+})();
