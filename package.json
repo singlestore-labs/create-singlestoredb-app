@@ -21,7 +21,6 @@
   "homepage": "https://github.com/singlestore-labs/create-singlestore-app#readme",
   "dependencies": {
     "axios": "^1.2.3",
-    "express": "^4.18.1",
-    "shelljs": "^0.8.5"
+    "express": "^4.18.1"
   }
 }
