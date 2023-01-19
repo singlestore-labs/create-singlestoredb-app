@@ -2,7 +2,7 @@
 
 const axios = require("axios");
 var createWorkspace = require("./create-workspace")
-const { exec, execSync } = require('child_process');
+const { execSync } = require('child_process');
 
 if (process.argv.length < 3) {
   console.error("Please enter the name of your new app");
@@ -42,9 +42,8 @@ starting *${appName}*: an awesome SingleStore app!
 //   console.log("resp")
 // });
 
-async function setupConnection(hostname,
-  password) {
-    console.log(hostname, password)
+async function setupConnection(hostname, password) {
+  console.log("setup connection for:", hostname, password)
   try {
     const response = await axios({
       method: "POST",
@@ -63,34 +62,23 @@ async function setupConnection(hostname,
   }
 }
 
-
-const start = async function (a, b) {
-  console.log("...........")
-  const hostname = "hostname";
-  const password = "secure_pass";
-  const response = await setupConnection(hostname, password);
-
-  console.log(response);
-}
-
-// execSync(`git clone https://github.com/singlestore-labs/singlestore-app-boilerplate.git ${appName}`)
-// execSync(`npm install`,{
-//   cwd: './test',
-//   stdio: 'inherit'
-// })
-start();
-// exec(`npm run dev`,{
-//   cwd: './test',
-//   stdio: 'inherit'
-// })
-// // wait for hostname and password
-// axios.(`localhost:3000/setup? hostname password`,{
-//   cwd: './test',
-//   stdio: 'inherit'
-// })
-
-
 (async () => {
-    const { endpoint, password } = await createWorkspace.create(appName, key);
-    console.log({ endpoint, password });
+console.log("start creating the workspace.....")
+  const { endpoint, password } = await createWorkspace.create(appName, key);
+
+  const response = await setupConnection(endpoint, password);
+  console.log("Workspace created", response);
 })();
+
+execSync(`git clone https://github.com/singlestore-labs/singlestore-app-boilerplate.git ${appName}`)
+
+execSync(`npm install`, {
+  cwd: './test',
+  stdio: 'inherit'
+})
+
+execSync(`npm run dev`, {
+  cwd: './test',
+  stdio: 'inherit'
+})
+
