@@ -1,18 +1,18 @@
 #! /usr/bin/env node
 
-var createWorkspace = require("./create-workspace")
+var createWorkspace = require("./create-workspace");
 
 if (process.argv.length < 3) {
-  console.error('Please enter the name of your new app');
-  process.exit(1); //an error occurred
+    console.error("Please enter the name of your new app");
+    process.exit(1); //an error occurred
 }
 if (process.argv.length < 4) {
-  console.error('Please enter your key. More info at docs-urls-to-be-added');
-  process.exit(1); //an error occurred
+    console.error("Please enter your key. More info at docs-urls-to-be-added");
+    process.exit(1); //an error occurred
 }
 
-const appName = process.argv.slice(2,3)[0];
-const key = process.argv.slice(3,4)[0];
+const appName = process.argv.slice(2, 3)[0];
+const key = process.argv.slice(3, 4)[0];
 
 console.log(`
                        oo 
@@ -34,6 +34,6 @@ oOOOOOOOOO                    oOOOOOOOOo
              ooooOOOOOOoooo
 
 starting *${appName}*: an awesome SingleStore app!
-`)
+`);
 
-createWorkspace.create(key)
+createWorkspace.create(key);
