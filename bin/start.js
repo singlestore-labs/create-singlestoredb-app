@@ -44,14 +44,28 @@ if (isMainThread) {
   threads.add(new Worker(__filename, { workerData: { type: "workspace", appName, key } }));
   threads.add(new Worker(__filename, { workerData: { type: "app", appName, key } }));
 
+  let terminatedThreads = 0;
+  let endpoint;
+  let password;
+
   for (let worker of threads) {
     worker.on('error', (err) => { throw err; });
     worker.on('exit', () => {
       threads.delete(worker);
+      terminatedThreads++;
     })
+
     worker.on('message', (msg) => {
+      if (msg.type === "workspace") {
+        endpoint = msg.endpoint;
+        password = msg.password;
+      }
       console.log(msg);
     });
+  }
+
+  if (terminatedThreads === 2) {
+    await setupConnection(endpoint, password);
   }
 
 } else {
@@ -84,7 +98,7 @@ if (isMainThread) {
     } catch (error) {
       console.error(error)
     }
-    
+
     try {
       execSync(`npm install`, {
         cwd: `./${workerData.appName}`,
@@ -109,8 +123,7 @@ if (isMainThread) {
     (async () => {
       console.log("start creating your workspace...")
       const { endpoint, password } = await createWorkspace.create(workerData.appName, workerData.key);
-      await setupConnection(endpoint, password);
-      parentPort.postMessage('Your workspace is ready!');
+      parentPort.postMessage({type: workerData.type, endpoint, password});
     })();
 
   }
