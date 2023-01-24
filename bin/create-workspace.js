@@ -1,8 +1,5 @@
 const axios = require("axios");
 
-const API_KEY =
-    "ad2eab5f1df1e937cdd5dcba3c730991d1559b971d3035f4627d8ba39c3c3b1f";
-
 const BASE_URL = "https://api.singlestore.com";
 
 const POLL_INTERVAL_SECONDS = 10;
