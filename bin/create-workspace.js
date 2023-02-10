@@ -86,9 +86,7 @@ async function getRegions(key) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error
     }
 }
 
@@ -103,9 +101,7 @@ async function getCurrentOrganization(key) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error
     }
 }
 
@@ -120,9 +116,7 @@ async function getWorkspaceGroups(key) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error;
     }
 }
 
@@ -142,9 +136,7 @@ async function createWorkspaceGroup({ key, name, regionID }) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error;
     }
 }
 
@@ -162,9 +154,7 @@ async function getWorkspace({ key, workspaceID }) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error
     }
 }
 
@@ -183,9 +173,7 @@ async function createWorkspace({ key, name, workspaceGroupID }) {
 
         return response.data;
     } catch (error) {
-        console.error({
-            error: error.response.status + ": " + error.response.data,
-        });
+        throw error
     }
 }
 
