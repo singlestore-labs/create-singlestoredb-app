@@ -1,5 +1,5 @@
 {
-  "name": "create-singlestore-app",
+  "name": "create-singlestoredb-app",
   "version": "1.0.1",
   "description": "A boilerplate to build a web application connected with SingleStoreDB.",
   "main": "index.js",
