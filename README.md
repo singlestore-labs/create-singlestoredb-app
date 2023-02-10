@@ -1,4 +1,4 @@
-# create-singlestore-app
+# create-singlestoredb-app
 
 This package includes a tool to create a demo application powered by SingleStoreDB (https://www.singlestore.com/).
 
@@ -11,7 +11,7 @@ This package includes a tool to create a demo application powered by SingleStore
 
 3- Open your terminal and run:
 ```
-npx create-singlestore-app <YOUR_APP_NAME> <YOUR_API_KEY>
+npx create-singlestoredb-app <YOUR_APP_NAME> <YOUR_API_KEY>
 ```
 
 4- Your app will be up and running on http://localhost:3000, powered by SingleStoreDB!
