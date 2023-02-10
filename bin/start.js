@@ -50,6 +50,10 @@ if (isMainThread) {
       threads.delete(worker);
     })
     worker.on('message', (msg) => {
+			if (msg.type === "exit") {
+				threads.delete(worker);
+				process.exit(1)
+			}
       console.log(msg);
     });
   }
@@ -107,10 +111,16 @@ if (isMainThread) {
   }
   else if (workerData.type === "workspace") {
     (async () => {
-      console.log("start creating your workspace...")
-      const { endpoint, password } = await createWorkspace.create(workerData.appName, workerData.key);
-      await setupConnection(endpoint, password);
-      parentPort.postMessage('Your workspace is ready!');
+        try {
+					console.log("start creating your workspace...")
+					const { endpoint, password } = await createWorkspace.create(workerData.appName, workerData.key);
+					await setupConnection(endpoint, password);
+					parentPort.postMessage('Your workspace is ready!');
+        } catch (error) {
+					console.error(`Error ${error.response.status}: ${error.response.data}`)
+					parentPort.postMessage({type: "exit"})
+					process.exit(1)
+				}
     })();
 
   }
