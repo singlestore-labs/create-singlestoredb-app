@@ -32,7 +32,7 @@ if (options.template) {
     process.exit(1);
   }
 
-  introMessage("Creating a SingleStore application");
+  introMessage(`Creating a SingleStore application with ${options.template} template`);
   return handleTemplate(options.template);
 }
 
