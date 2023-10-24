@@ -1,6 +1,6 @@
 {
   "name": "create-singlestoredb-app",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A boilerplate to build a web application connected with SingleStoreDB.",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,8 @@
   "homepage": "https://github.com/singlestore-labs/create-singlestoredb-app#readme",
   "dependencies": {
     "axios": "^1.2.3",
-    "express": "^4.18.1"
+    "commander": "^11.1.0",
+    "express": "^4.18.1",
+    "prompts": "^2.4.2"
   }
 }
