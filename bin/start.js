@@ -9,6 +9,29 @@ const { isValidTemplateName, handleTemplate } = require("./templates");
 const prompts = require("prompts");
 
 
+const templateConfigs = {
+  "elegance-next": {
+    mysql: {
+      repository: "https://github.com/singlestore-labs/elegance-sdk-template-next.git",
+      branch: "main"
+    },
+    kai: {
+      repository: "https://github.com/singlestore-labs/elegance-sdk-template-next.git",
+      branch: "kai_template"
+    }
+  },
+  "elegance-express": {
+    mysql: {
+      repository: "https://github.com/singlestore-labs/elegance-sdk-template-express.git",
+      branch: "hackathon-summer-2024"
+    },
+    kai: {
+      repository: "https://github.com/singlestore-labs/elegance-sdk-template-express.git",
+      branch: "kai_template"
+    }
+  }
+};
+
 // if (options.template) {
 //   if (!isValidTemplateName(options.template)) {
 //     console.error("Invalid template name");
@@ -112,6 +135,40 @@ function createNextApp({ appName, endpoint, user, password, databaseName }) {
   }
 }
 
+function createExpressApp({ appName, endpoint, user, password, databaseName }) {
+  try {
+    execSync(`git clone ${templateConfigs['elegance-express']["mysql"].repository} --branch ${templateConfigs['elegance-express']["mysql"].branch} --single-branch ${appName}`, {
+      stdio: "inherit"
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    execSync(`echo "
+      DB_HOST=\"${endpoint}\"
+      DB_USER=\"${user}\"
+      DB_PASSWORD=\"${password}\"
+      DB_NAME=\"${databaseName}\"
+      DB_PORT=\"3333"
+      " > .env`, {
+      cwd: `./${appName}`,
+      stdio: "inherit"
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    execSync(`npm run dev`, {
+      cwd: `./${appName}`,
+      stdio: "inherit"
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function startMainThread() {
   const { appName } = await prompts(
     {
@@ -160,7 +217,7 @@ async function startMainThread() {
       message: "What framework would you like to use?",
       choices: [
         { title: "Next.js", value: "next" },
-        { title: "Nuxt.js", value: "nuxt" }
+        { title: "Express", value: "express" }
       ],
       initial: 0
     },
@@ -182,10 +239,11 @@ async function startMainThread() {
 
   if (flow === "demo" && demo === "store") {
     runEstoreApp({ appName, endpoint, user, password, databaseName });
-  }
-  if (flow === "app" && framework === "next") {
+  } else if (flow === "app" && framework === "next") {
     createNextApp({ appName, endpoint, user, password, databaseName });
-  }
+  } else if (flow === "app" && framework === "express") {
+    createExpressApp({ appName, endpoint, user, password, databaseName });
+  } 
 
 }
 
