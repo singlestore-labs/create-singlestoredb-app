@@ -52,11 +52,12 @@ function runEstoreApp({ appName, endpoint, user, password, databaseName }) {
 
   try {
     execSync(`echo "
-      DB_HOST=\"${endpoint}\"
-      DB_USER=\"${user}\"
-      DB_PASSWORD=\"${password}\"
-      DB_NAME=\"${databaseName}\"
-      DB_PORT=\"3333"
+      DB_HOST=${endpoint}
+      DB_USER=${user}
+      DB_PASSWORD=${password}
+      DB_NAME=${databaseName}
+      DB_PORT=3333"
+      TIER=shared
       " > .env`, {
       cwd: `./${appName}`,
       stdio: "inherit"
@@ -112,11 +113,12 @@ function createNextApp({ appName, endpoint, user, password, databaseName }) {
 
   try {
     execSync(`echo "
-      DB_HOST=\"${endpoint}\"
-      DB_USER=\"${user}\"
-      DB_PASSWORD=\"${password}\"
-      DB_NAME=\"${databaseName}\"
-      DB_PORT=\"3333"
+      DB_HOST=${endpoint}
+      DB_USER=${user}
+      DB_PASSWORD=${password}
+      DB_NAME=${databaseName}
+      DB_PORT=3333"
+      TIER=shared
       " > .env`, {
       cwd: `./${appName}`,
       stdio: "inherit"
@@ -146,11 +148,12 @@ function createExpressApp({ appName, endpoint, user, password, databaseName }) {
 
   try {
     execSync(`echo "
-      DB_HOST=\"${endpoint}\"
-      DB_USER=\"${user}\"
-      DB_PASSWORD=\"${password}\"
-      DB_NAME=\"${databaseName}\"
-      DB_PORT=\"3333"
+      DB_HOST=${endpoint}
+      DB_USER=${user}
+      DB_PASSWORD=${password}
+      DB_NAME=${databaseName}
+      DB_PORT=3333"
+      TIER=shared
       " > .env`, {
       cwd: `./${appName}`,
       stdio: "inherit"
@@ -230,12 +233,12 @@ async function startMainThread() {
 
   // introMessage(`starting *${appName}*: an awesome app powered by SingleStore!`);
 
-  // const { endpoint, user, password, databaseName } = await createWorkspace.create();
-  // console.log("connecting to:", endpoint, user, password, databaseName);
-  const user = "user5yei3l";
-  const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
-  const password = "akdF5FYftk8ZSfXlfEC9UKrWdxNy1ksR"
-  const databaseName = "ufdcs";
+  const { endpoint, user, password, databaseName } = await createWorkspace.create();
+  console.log("connecting to:", endpoint, user, password, databaseName);
+  // const user = "user5yei3l";
+  // const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
+  // const password = "akdF5FYftk8ZSfXlfEC9UKrWdxNy1ksR"
+  // const databaseName = "ufdcs";
 
   if (flow === "demo" && demo === "store") {
     runEstoreApp({ appName, endpoint, user, password, databaseName });
@@ -243,7 +246,7 @@ async function startMainThread() {
     createNextApp({ appName, endpoint, user, password, databaseName });
   } else if (flow === "app" && framework === "express") {
     createExpressApp({ appName, endpoint, user, password, databaseName });
-  } 
+  }
 
 }
 
