@@ -1,154 +1,62 @@
 #! /usr/bin/env node
-
 const axios = require("axios");
 var createWorkspace = require("./create-workspace");
-const { execSync, spawn } = require("child_process");
-const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
-const { options } = require("./commander");
-const { isValidTemplateName, handleTemplate } = require("./templates");
+const { execSync } = require("child_process");
 const prompts = require("prompts");
 
 
-const templateConfigs = {
-  "elegance-next": {
-    mysql: {
-      repository: "https://github.com/singlestore-labs/elegance-sdk-template-next.git",
-      branch: "main"
-    },
-    kai: {
-      repository: "https://github.com/singlestore-labs/elegance-sdk-template-next.git",
-      branch: "kai_template"
-    }
-  },
-  "elegance-express": {
-    mysql: {
-      repository: "https://github.com/singlestore-labs/elegance-sdk-template-express.git",
-      branch: "hackathon-summer-2024"
-    },
-    kai: {
-      repository: "https://github.com/singlestore-labs/elegance-sdk-template-express.git",
-      branch: "kai_template"
-    }
+function execCommand(cmd) {
+  try {
+    execSync(cmd, {
+      stdio: "inherit"
+    });
+  } catch (error) {
+    console.error(error);
   }
-};
+}
 
-// if (options.template) {
-//   if (!isValidTemplateName(options.template)) {
-//     console.error("Invalid template name");
-//     process.exit(1);
-//   }
-
-//   introMessage(`Creating a SingleStore application with ${options.template} template`);
-//   return handleTemplate(options.template);
-// }
+function execCommandInApp(cmd, appName) {
+  try {
+    execSync(cmd, {
+      cwd: `./${appName}`,
+      stdio: "inherit"
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function runEstoreApp({ appName, envFileCommand }) {
-  try {
-    console.log("cloning....")
-    execSync(`git clone https://github.com/singlestore-labs/estore.git --branch hackathon-summer-2024 --single-branch ${appName}`);
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    execSync(envFileCommand, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-  try {
-    execSync(`npm install`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-  try {
-    execSync(`npm run start:data`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-  try {
-    execSync(`npm run build`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    execSync(`npm run dev`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
+  // TODO: remove once MR is approved
+  execCommand(`git clone https://github.com/singlestore-labs/estore.git --branch hackathon-summer-2024 --single-branch ${appName}`);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm i", appName);
+  execCommandInApp("npm run start:data", appName);
+  // execCommandInApp("npm run build",appName);
+  execCommandInApp("npm run dev", appName);
   console.log("Your app is now ready!");
 }
 
 function createNextApp({ appName, envFileCommand }) {
-  try {
-    execSync(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/hackathon-summer-2024`, {
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  // TODO: remove once MR is approved
+  execCommand(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/hackathon-summer-2024`);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm run dev", appName);
+}
 
-  try {
-    execSync(envFileCommand, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    execSync(`npm run dev`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
+function createRemixApp({ appName, envFileCommand }) {
+  execCommand(`npx --yes create-remix@latest ${appName} --template singlestore-labs/elegance-sdk-template-remix`)
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm run dev", appName);
 }
 
 function createExpressApp({ appName, envFileCommand }) {
-  try {
-    execSync(`git clone ${templateConfigs['elegance-express']["mysql"].repository} --branch ${templateConfigs['elegance-express']["mysql"].branch} --single-branch ${appName}`, {
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    execSync(envFileCommand, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    execSync(`npm run dev`, {
-      cwd: `./${appName}`,
-      stdio: "inherit"
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  // TODO: remove once MR is approved
+  execCommand(`git clone https://github.com/singlestore-labs/elegance-sdk-template-express.git --branch hackathon-summer-2024-2 --single-branch ${appName}`);
+  execCommandInApp("rm -rf .git", appName);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm i", appName);
+  execCommandInApp("npm run dev", appName);
 }
 
 async function startMainThread() {
@@ -199,7 +107,8 @@ async function startMainThread() {
       message: "What framework would you like to use?",
       choices: [
         { title: "Next.js", value: "next" },
-        { title: "Express", value: "express" }
+        { title: "Express", value: "express" },
+        { title: "Remix", value: "remix" }
       ],
       initial: 0
     },
@@ -208,7 +117,6 @@ async function startMainThread() {
 
     }
   );
-
 
   // introMessage(`starting *${appName}*: an awesome app powered by SingleStore!`);
 
@@ -238,7 +146,17 @@ async function startMainThread() {
   } else if (flow === "app" && framework === "next") {
     createNextApp({ appName, endpoint, envFileCommand });
   } else if (flow === "app" && framework === "express") {
-    createExpressApp({ appName, endpoint, envFileCommand });
+    const expressEnvFileCommand = `echo "
+      REACT_APP_DB_HOST=${endpoint}
+      REACT_APP_DB_USER=${user}
+      REACT_APP_DB_PASSWORD=${password}
+      REACT_APP_DB_NAME=${databaseName}
+      REACT_APP_DB_PORT=3333
+      REACT_APP_TIER=shared
+      " > .env`
+    createExpressApp({ appName, endpoint, envFileCommand: expressEnvFileCommand });
+  } else if (flow === "app" && framework === "remix") {
+    createRemixApp({ appName, endpoint, envFileCommand });
   }
 
 }
