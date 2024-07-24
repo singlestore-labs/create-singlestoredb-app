@@ -42,7 +42,7 @@ const templateConfigs = {
 //   return handleTemplate(options.template);
 // }
 
-function runEstoreApp({ appName, endpoint, user, password, databaseName }) {
+function runEstoreApp({ appName, envFileCommand }) {
   try {
     console.log("cloning....")
     execSync(`git clone https://github.com/singlestore-labs/estore.git --branch hackathon-summer-2024 --single-branch ${appName}`);
@@ -51,14 +51,7 @@ function runEstoreApp({ appName, endpoint, user, password, databaseName }) {
   }
 
   try {
-    execSync(`echo "
-      DB_HOST=${endpoint}
-      DB_USER=${user}
-      DB_PASSWORD=${password}
-      DB_NAME=${databaseName}
-      DB_PORT=3333"
-      TIER=shared
-      " > .env`, {
+    execSync(envFileCommand, {
       cwd: `./${appName}`,
       stdio: "inherit"
     });
@@ -102,7 +95,7 @@ function runEstoreApp({ appName, endpoint, user, password, databaseName }) {
   console.log("Your app is now ready!");
 }
 
-function createNextApp({ appName, endpoint, user, password, databaseName }) {
+function createNextApp({ appName, envFileCommand }) {
   try {
     execSync(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/hackathon-summer-2024`, {
       stdio: "inherit"
@@ -112,14 +105,7 @@ function createNextApp({ appName, endpoint, user, password, databaseName }) {
   }
 
   try {
-    execSync(`echo "
-      DB_HOST=${endpoint}
-      DB_USER=${user}
-      DB_PASSWORD=${password}
-      DB_NAME=${databaseName}
-      DB_PORT=3333"
-      TIER=shared
-      " > .env`, {
+    execSync(envFileCommand, {
       cwd: `./${appName}`,
       stdio: "inherit"
     });
@@ -137,7 +123,7 @@ function createNextApp({ appName, endpoint, user, password, databaseName }) {
   }
 }
 
-function createExpressApp({ appName, endpoint, user, password, databaseName }) {
+function createExpressApp({ appName, envFileCommand }) {
   try {
     execSync(`git clone ${templateConfigs['elegance-express']["mysql"].repository} --branch ${templateConfigs['elegance-express']["mysql"].branch} --single-branch ${appName}`, {
       stdio: "inherit"
@@ -147,14 +133,7 @@ function createExpressApp({ appName, endpoint, user, password, databaseName }) {
   }
 
   try {
-    execSync(`echo "
-      DB_HOST=${endpoint}
-      DB_USER=${user}
-      DB_PASSWORD=${password}
-      DB_NAME=${databaseName}
-      DB_PORT=3333"
-      TIER=shared
-      " > .env`, {
+    execSync(envFileCommand, {
       cwd: `./${appName}`,
       stdio: "inherit"
     });
@@ -233,19 +212,33 @@ async function startMainThread() {
 
   // introMessage(`starting *${appName}*: an awesome app powered by SingleStore!`);
 
-  const { endpoint, user, password, databaseName } = await createWorkspace.create();
-  console.log("connecting to:", endpoint, user, password, databaseName);
+  // const { endpoint, user, password, databaseName } = await createWorkspace.create();
+  // console.log("connecting to:", endpoint, user, password, databaseName);
   // const user = "user5yei3l";
   // const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
   // const password = "akdF5FYftk8ZSfXlfEC9UKrWdxNy1ksR"
   // const databaseName = "ufdcs";
+  const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
+  const user = "userxd1oub"
+  const password = 'jlLJFFQh49WDns0AI1ZjNbt7lt6rKts1'
+  const databaseName = "yikhd"
+
+  const envFileCommand = `echo "
+      DB_HOST=${endpoint}
+      DB_USER=${user}
+      DB_PASSWORD=${password}
+      DB_NAME=${databaseName}
+      DB_PORT=3333
+      TIER=shared
+      " > .env`
+
 
   if (flow === "demo" && demo === "store") {
-    runEstoreApp({ appName, endpoint, user, password, databaseName });
+    runEstoreApp({ appName, endpoint, envFileCommand });
   } else if (flow === "app" && framework === "next") {
-    createNextApp({ appName, endpoint, user, password, databaseName });
+    createNextApp({ appName, endpoint, envFileCommand });
   } else if (flow === "app" && framework === "express") {
-    createExpressApp({ appName, endpoint, user, password, databaseName });
+    createExpressApp({ appName, endpoint, envFileCommand });
   }
 
 }
