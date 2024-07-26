@@ -1,7 +1,7 @@
 {
   "name": "create-singlestoredb-app",
-  "version": "1.0.4",
-  "description": "A boilerplate to build a web application connected with SingleStoreDB.",
+  "version": "2.0.0",
+  "description": "Create boilerplate templates or full demos connected to SingleStore!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

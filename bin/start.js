@@ -1,145 +1,151 @@
 #! /usr/bin/env node
-
 const axios = require("axios");
 var createWorkspace = require("./create-workspace");
 const { execSync } = require("child_process");
-const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
-const { options } = require("./commander");
-const { isValidTemplateName, handleTemplate } = require("./templates");
+const prompts = require("prompts");
 
-async function setupConnection(hostname, password) {
+
+function execCommand(cmd) {
   try {
-    const response = await axios({
-      method: "POST",
-      url: "/setup",
-      baseURL: "http://localhost:3000",
-      data: {
-        hostname,
-        password
-      },
-      headers: { "Content-Type": "application/json" }
+    execSync(cmd, {
+      stdio: "inherit"
     });
-
-    return response.data;
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(error);
   }
 }
 
-if (options.template) {
-  if (!isValidTemplateName(options.template)) {
-    console.error("Invalid template name");
-    process.exit(1);
-  }
-
-  introMessage(`Creating a SingleStore application with ${options.template} template`);
-  return handleTemplate(options.template);
-}
-
-if (isMainThread) {
-  const threads = new Set();
-
-  if (process.argv.length < 3) {
-    console.error("Please enter the name of your new app");
-    process.exit(1);
-  }
-
-  const appName = process.argv.slice(2, 3)[0];
-
-  if (process.argv.length < 4) {
-    console.error(
-      "Please enter your key. More info on https://docs.singlestore.com/managed-service/en/reference/management-api.html#authorization"
-    );
-    process.exit(1);
-  }
-
-  const key = process.argv.slice(3, 4)[0];
-
-  threads.add(new Worker(__filename, { workerData: { type: "workspace", appName, key } }));
-  threads.add(new Worker(__filename, { workerData: { type: "app", appName, key } }));
-
-  for (let worker of threads) {
-    worker.on("error", err => {
-      throw err;
+function execCommandInApp(cmd, appName) {
+  try {
+    execSync(cmd, {
+      cwd: `./${appName}`,
+      stdio: "inherit"
     });
-    worker.on("exit", () => {
-      threads.delete(worker);
-    });
-    worker.on("message", msg => {
-      if (msg.type === "exit") {
-        threads.delete(worker);
-        process.exit(1);
-      }
-      console.log(msg);
-    });
-  }
-} else {
-  // This code is executed in the worker and not in the main thread.
-
-  if (workerData.type === "app") {
-    introMessage(`starting *${workerData.appName}*: an awesome app powered by SingleStore!`);
-
-    try {
-      execSync(`git clone https://github.com/singlestore-labs/singlestore-app-boilerplate.git ${workerData.appName}`);
-    } catch (error) {
-      console.error(error);
-    }
-
-    try {
-      execSync(`npm install`, {
-        cwd: `./${workerData.appName}`,
-        stdio: "inherit"
-      });
-    } catch (error) {
-      console.error(error);
-    }
-
-    try {
-      execSync(`npm run dev`, {
-        cwd: `./${workerData.appName}`,
-        stdio: "inherit"
-      });
-    } catch (error) {
-      console.error(error);
-    }
-
-    parentPort.postMessage("Your app is now ready!");
-  } else if (workerData.type === "workspace") {
-    (async () => {
-      try {
-        console.log("start creating your workspace...");
-        const { endpoint, password } = await createWorkspace.create(workerData.appName, workerData.key);
-        await setupConnection(endpoint, password);
-        parentPort.postMessage("Your workspace is ready!");
-      } catch (error) {
-        console.error(`Error ${error.response.status}: ${error.response.data}`);
-        parentPort.postMessage({ type: "exit" });
-        process.exit(1);
-      }
-    })();
+  } catch (error) {
+    console.error(error);
   }
 }
 
-function introMessage(message = "") {
-  console.log(`
-                           oo
-                 ooOOOOOo     oOo
-            ooOOOOOOOOOOOOOOo   oOOOo
-         oOOOOOOOOOOOOOo oOOOOo  oOOOOo
-       oOOOOOOOOOo            oOo  oOOOOo
-      oOOOOOOOOo                 o  oOOOOo
-     oOOOOOOOO                       oOOOOOo
-    oOOOOOOOO                        oOOOOOo
-    oOOOOOOOO                        oOOOOOo
-    oOOOOOOOO                       oOOOOOOo
-    oOOOOOOOOO                    oOOOOOOOOo
-     oOOOOOOOOOo                 oOOOOOOOOo
-      oOOOOOOOOOOo            oOOOOOOOOOOo
-       oOOOOOOOOOOOOOOoo oOOOOOOOOOOOOOoo
-         oOOOOOOOOOOOOOOOOOOOOOOOOOOOo
-            ooOOOOOOOOOOOOOOOOOOOoo
-                 ooooOOOOOOoooo
-
-${message}
-    `);
+function runEstoreApp({ appName, envFileCommand }) {
+  // TODO: remove once MR is approved
+  execCommand(`git clone https://github.com/singlestore-labs/estore.git --branch hackathon-summer-2024 --single-branch ${appName}`);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm i", appName);
+  execCommandInApp("npm run start:data", appName);
+  execCommandInApp("npm run dev", appName);
+  console.log("Your app is now ready!");
 }
+
+function createNextApp({ appName, envFileCommand }) {
+  // TODO: remove once MR is approved
+  execCommand(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/hackathon-summer-2024`);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm run dev", appName);
+}
+
+function createRemixApp({ appName, envFileCommand }) {
+  execCommand(`npx --yes create-remix@latest ${appName} --template singlestore-labs/elegance-sdk-template-remix`)
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm run dev", appName);
+}
+
+function createExpressApp({ appName, envFileCommand }) {
+  // TODO: remove once MR is approved
+  execCommand(`git clone https://github.com/singlestore-labs/elegance-sdk-template-express.git --branch hackathon-summer-2024-2 --single-branch ${appName}`);
+  execCommandInApp("rm -rf .git", appName);
+  execCommandInApp(envFileCommand, appName);
+  execCommandInApp("npm i", appName);
+  execCommandInApp("npm run dev", appName);
+}
+
+async function startMainThread() {
+  const { appName } = await prompts(
+    {
+      type: "text",
+      name: "appName",
+      message: "What is your project named?",
+      initial: "my-singlestore-app"
+    },
+    { onCancel: () => process.exit(1) }
+  );
+
+
+  const { flow } = await prompts(
+    {
+      type: "select",
+      name: "flow",
+      message: "What would you like to create?",
+      choices: [
+        { title: "Full built demo!", value: "demo" },
+        { title: "Build my own app", value: "app" }
+      ],
+      initial: 0
+    },
+    { onCancel: () => process.exit(1) }
+  );
+
+  const { demo } = await prompts(
+    {
+      type: _prev => flow === 'demo' ? 'select' : null,
+      name: "demo",
+      message: "What demo would you like to try?",
+      choices: [
+        { title: "Gen AI store", value: "store" }
+      ],
+      initial: 0
+    },
+    {
+      onCancel: () => process.exit(1),
+
+    }
+  );
+  const { framework } = await prompts(
+    {
+      type: _prev => flow === 'app' ? 'select' : null,
+      name: "framework",
+      message: "What framework would you like to use?",
+      choices: [
+        { title: "Next.js", value: "next" },
+        { title: "Express", value: "express" },
+        { title: "Remix", value: "remix" }
+      ],
+      initial: 0
+    },
+    {
+      onCancel: () => process.exit(1),
+
+    }
+  );
+  const { endpoint, user, password, databaseName } = await createWorkspace.create();
+
+  const envFileCommand = `echo "
+      DB_HOST=${endpoint}
+      DB_USER=${user}
+      DB_PASSWORD=${password}
+      DB_NAME=${databaseName}
+      DB_PORT=3333
+      TIER=shared
+      " > .env`
+
+
+  if (flow === "demo" && demo === "store") {
+    runEstoreApp({ appName, endpoint, envFileCommand });
+  } else if (flow === "app" && framework === "next") {
+    createNextApp({ appName, endpoint, envFileCommand });
+  } else if (flow === "app" && framework === "express") {
+    const expressEnvFileCommand = `echo "
+      REACT_APP_DB_HOST=${endpoint}
+      REACT_APP_DB_USER=${user}
+      REACT_APP_DB_PASSWORD=${password}
+      REACT_APP_DB_NAME=${databaseName}
+      REACT_APP_DB_PORT=3333
+      REACT_APP_TIER=shared
+      " > .env`
+    createExpressApp({ appName, endpoint, envFileCommand: expressEnvFileCommand });
+  } else if (flow === "app" && framework === "remix") {
+    createRemixApp({ appName, endpoint, envFileCommand });
+  }
+
+}
+
+startMainThread();
