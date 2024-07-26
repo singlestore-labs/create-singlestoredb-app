@@ -32,7 +32,6 @@ function runEstoreApp({ appName, envFileCommand }) {
   execCommandInApp(envFileCommand, appName);
   execCommandInApp("npm i", appName);
   execCommandInApp("npm run start:data", appName);
-  // execCommandInApp("npm run build",appName);
   execCommandInApp("npm run dev", appName);
   console.log("Your app is now ready!");
 }
@@ -117,19 +116,7 @@ async function startMainThread() {
 
     }
   );
-
-  // introMessage(`starting *${appName}*: an awesome app powered by SingleStore!`);
-
-  // const { endpoint, user, password, databaseName } = await createWorkspace.create();
-  // console.log("connecting to:", endpoint, user, password, databaseName);
-  // const user = "user5yei3l";
-  // const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
-  // const password = "akdF5FYftk8ZSfXlfEC9UKrWdxNy1ksR"
-  // const databaseName = "ufdcs";
-  const endpoint = "svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com"
-  const user = "userxd1oub"
-  const password = 'jlLJFFQh49WDns0AI1ZjNbt7lt6rKts1'
-  const databaseName = "yikhd"
+  const { endpoint, user, password, databaseName } = await createWorkspace.create();
 
   const envFileCommand = `echo "
       DB_HOST=${endpoint}

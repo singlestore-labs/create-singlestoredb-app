@@ -10,8 +10,6 @@ async function create() {
             url: "/session",
             baseURL: BASE_URL,
         });
-        console.log(response.headers.getSetCookie());
-        // document.cookie += response.headers.getSetCookie();
 
         return response.data;
     } catch (error) {
