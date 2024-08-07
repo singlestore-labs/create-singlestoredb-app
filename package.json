@@ -1,6 +1,6 @@
 {
   "name": "create-singlestoredb-app",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Create boilerplate templates or full demos connected to SingleStore!",
   "main": "index.js",
   "scripts": {

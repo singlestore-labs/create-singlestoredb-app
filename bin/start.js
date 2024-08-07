@@ -27,8 +27,7 @@ function execCommandInApp(cmd, appName) {
 }
 
 function runEstoreApp({ appName, envFileCommand }) {
-  // TODO: remove once MR is approved
-  execCommand(`git clone https://github.com/singlestore-labs/estore.git --branch hackathon-summer-2024 --single-branch ${appName}`);
+  execCommand(`git clone https://github.com/singlestore-labs/estore.git ${appName}`);
   execCommandInApp(envFileCommand, appName);
   execCommandInApp("npm i", appName);
   execCommandInApp("npm run start:data", appName);
@@ -37,8 +36,7 @@ function runEstoreApp({ appName, envFileCommand }) {
 }
 
 function createNextApp({ appName, envFileCommand }) {
-  // TODO: remove once MR is approved
-  execCommand(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/hackathon-summer-2024`);
+  execCommand(`npx --yes create-next-app@latest ${appName} --example https://github.com/singlestore-labs/elegance-sdk-template-next/tree/main`);
   execCommandInApp(envFileCommand, appName);
   execCommandInApp("npm run dev", appName);
 }
@@ -50,8 +48,7 @@ function createRemixApp({ appName, envFileCommand }) {
 }
 
 function createExpressApp({ appName, envFileCommand }) {
-  // TODO: remove once MR is approved
-  execCommand(`git clone https://github.com/singlestore-labs/elegance-sdk-template-express.git --branch hackathon-summer-2024-2 --single-branch ${appName}`);
+  execCommand(`git clone https://github.com/singlestore-labs/elegance-sdk-template-express.git ${appName}`);
   execCommandInApp("rm -rf .git", appName);
   execCommandInApp(envFileCommand, appName);
   execCommandInApp("npm i", appName);
