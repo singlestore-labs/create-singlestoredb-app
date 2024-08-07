@@ -21,5 +21,5 @@ npx create-singlestoredb-app
 This tool creates a starter workspace (free!) at SingleStoreDB Cloud to power your application or demo. The created application will be connected to your workspace through the `.env` file. You can also connect through mysql protocol:
 
 ```sh
-mysql -u <user> -h <hostnmae> -P 3333 --default-auth=mysql_native_password --password=<password> <db_name>
+mysql -u <user> -h <hostname> -P 3333 --default-auth=mysql_native_password --password=<password> <db_name>
 ```
